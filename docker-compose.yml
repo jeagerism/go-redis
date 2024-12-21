@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+      - ./config/redis.conf:/redis.conf
+    command: redis-server /redis.conf --pidfile /data/redis.pid
+
+  k6:
+    image: grafana/k6
+    container_name: k6
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      - influxdb
+    command: >
+     sh -c "k6 run --out influxdb=http://influxdb:8086?org=myorg&bucket=mybucket&token=myadmintoken /scripts/test.js"
+
+
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_MAX_BODY_SIZE=104857600  # เพิ่มขนาดสูงสุดของ body size
+    ports:
+      - 8086:8086
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+
+volumes:
+  redis-data:
+  influxdb-data:
+  grafana-data:
