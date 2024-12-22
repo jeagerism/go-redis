@@ -47,6 +47,17 @@ services:
     depends_on:
       - influxdb
 
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    environment: 
+      - MARIADB_ROOT_PASSWORD=P@ssw0rd
+      - MARIADB_DATABASE=infinitas
+    ports: 
+      - 3306:3306
+    volumes: 
+      - ./data/mariadb:/var/lib/mysql
+
 volumes:
   redis-data:
   influxdb-data:
