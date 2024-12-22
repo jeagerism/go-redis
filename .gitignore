@@ -5,4 +5,4 @@
 *.so
 *.dylib
 .DS_Store
-data/
+/data/
