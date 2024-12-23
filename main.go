@@ -16,7 +16,7 @@ func main() {
 	redis := initRedis()
 	_ = redis
 
-	productRepo := repositories.NewProductRepositoryRedis(db, redis)
+	productRepo := repositories.NewProductRepositoryDB(db)
 	productService := services.NewCatalogServiceRedis(productRepo, redis)
 	productHandler := handlers.NewCatalogHandler(productService)
 
